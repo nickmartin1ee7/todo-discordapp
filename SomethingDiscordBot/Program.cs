@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Drawing;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,10 +9,13 @@ using Remora.Commands.Attributes;
 using Remora.Commands.Extensions;
 using Remora.Commands.Groups;
 using Remora.Discord.API.Abstractions.Objects;
+using Remora.Discord.API.Objects;
 using Remora.Discord.Commands.Attributes;
 using Remora.Discord.Commands.Extensions;
+using Remora.Discord.Commands.Feedback.Services;
 using Remora.Discord.Commands.Services;
 using Remora.Discord.Hosting.Extensions;
+using Remora.Rest.Core;
 using Remora.Results;
 
 var host = Host.CreateDefaultBuilder();
@@ -57,12 +61,26 @@ await app.RunAsync();
 
 public class MiscCommands : CommandGroup
 {
+    private readonly IFeedbackService _feedbackService;
+
+    public MiscCommands(
+        IFeedbackService feedbackService)
+    {
+        _feedbackService = feedbackService;
+    }
+
     [Command("ping")]
     [CommandType(ApplicationCommandType.ChatInput)]
-    [Description("Check latency with Discord")]
+    [Description("Check if the bot is working!")]
     public async Task<IResult> Ping()
     {
         // TODO
+        var reply = await _feedbackService.SendContextualEmbedAsync(new Embed(nameof(Ping),
+            Description: $"Pong!",
+            Colour: new Optional<Color>(Color.Green)),
+            ct: CancellationToken);
+
+
         return Result.FromSuccess();
     }
 }
