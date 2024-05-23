@@ -16,6 +16,16 @@ using Remora.Results;
 
 var host = Host.CreateDefaultBuilder();
 
+host.ConfigureAppConfiguration(config =>
+{
+    config.AddJsonFile("appsettings.json", optional: false);
+    config.AddEnvironmentVariables();
+
+#if DEBUG
+    config.AddUserSecrets("b88f09f6-d21f-4d83-b9a6-2651851c3c73");
+#endif
+});
+
 host.AddDiscordService(tokenFactory: sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
